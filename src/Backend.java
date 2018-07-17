@@ -4,7 +4,7 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -93,5 +93,36 @@ public class Backend {
         MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
     }
 
+    public static boolean saveTicketArray(String outputPath, byte[][] ticketArray) {
+        try {
+            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(outputPath));
+            outputStream.writeObject(ticketArray);
+        } catch (IOException e) {
+            System.out.println("Error writing to file: " + e.toString());
+            return false;
+        }
+        return true;
+    }
+
+    public static byte[][] readTicketFile(String filePath) {
+        try {
+            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(filePath));
+            return (byte[][])inputStream.readObject();
+        } catch (IOException e) {
+            System.out.println("Error reading from file: " + e.toString());
+        } catch (ClassNotFoundException c) {
+            System.out.println("Error: " + c.toString());
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        byte[][] tickets = createTicketHashes("show", 100);
+        saveTicketArray("tickets.dat",  tickets);
+        byte[][] read_tickets = readTicketFile("tickets.dat");
+        for (byte[] read_ticket : read_tickets) {
+            System.out.println(verifyTicket(read_ticket, tickets));
+        }
+    }
 
 }
