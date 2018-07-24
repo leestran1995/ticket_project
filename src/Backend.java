@@ -5,6 +5,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.io.*;
+import java.net.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -23,8 +24,8 @@ import java.util.Arrays;
  */
 
 public class Backend {
-
-
+    private ServerSocket serverSocket;
+    private Socket clientSocket;
     /*
      * verifyTicket
      *
@@ -115,7 +116,35 @@ public class Backend {
         return null;
     }
 
-    public static void main(String[] args) {
+    public void start(int port) throws IOException {
+        serverSocket = new ServerSocket(port);
+        System.out.println("Waiting for client to connect");
+        clientSocket = serverSocket.accept();
+        System.out.println("Client connected");
+        DataInputStream dataInput = new DataInputStream(clientSocket.getInputStream());
 
+        boolean done = false;
+        while(!done) {
+            System.out.println("Reading length of hash");
+            int length = dataInput.readInt();
+            System.out.println("Length of hash is: " + length);
+            System.out.println("Reading bytes of hash");
+            byte[] hash = new byte[length];
+            for(int i = 0; i < length; i++) {
+                hash[i] = dataInput.readByte();
+            }
+            System.out.println(Arrays.toString(hash));
+            done = true;
+        }
     }
+
+    public static void main(String[] args) {
+        Backend server = new Backend();
+        try {
+            server.start(6666);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
