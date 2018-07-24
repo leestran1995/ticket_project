@@ -30,9 +30,9 @@ public class Backend {
      *
      * If the ticket is in the database, return true. Otherwise return false
      */
-    private static boolean verifyTicket(byte[] ticket, byte[][] ticketDatabase) {
-        for(byte[] tic : ticketDatabase) {
-            if (Arrays.equals(ticket, tic)) {
+    private static boolean verifyTicket(byte[] ticket, Ticket[] ticketDatabase) {
+        for(Ticket tic : ticketDatabase) {
+            if(tic.validateTicket(ticket)) {
                 return true;
             }
         }
@@ -47,7 +47,7 @@ public class Backend {
      * the SHA-256 algorithm
      *
      */
-    public static byte[] createHashFromPassword(String password){
+    private static byte[] createHashFromPassword(String password){
         try {
             byte[] data1 = password.getBytes("UTF-8");
 
@@ -70,15 +70,14 @@ public class Backend {
      * For some password and a number of tickets to be created, create that
      * number of hashes and store in a byte[][] matrix that is to be returned.
      */
-    public static byte[][] createTicketHashes(String password, int numTickets){
-        byte[][] tickets = new byte[numTickets][32];
+    public static Ticket[] createTicketHashes(String password, int numTickets){
+        Ticket[] tickets = new Ticket[numTickets];
 
         for(int i = 0; i < numTickets; i++){
             String iteratedPassword = password + i;
             byte[] hash = createHashFromPassword(iteratedPassword);
-            tickets[i] = hash;
+            tickets[i] = new Ticket(hash);
         }
-
         return tickets;
     }
 
@@ -93,7 +92,7 @@ public class Backend {
         MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
     }
 
-    public static boolean saveTicketArray(String outputPath, byte[][] ticketArray) {
+    public static boolean saveTicketArrayToFile(String outputPath, Ticket[] ticketArray) {
         try {
             ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(outputPath));
             outputStream.writeObject(ticketArray);
@@ -104,10 +103,10 @@ public class Backend {
         return true;
     }
 
-    public static byte[][] readTicketFile(String filePath) {
+    public static Ticket[] readTicketFile(String filePath) {
         try {
             ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(filePath));
-            return (byte[][])inputStream.readObject();
+            return (Ticket[])inputStream.readObject();
         } catch (IOException e) {
             System.out.println("Error reading from file: " + e.toString());
         } catch (ClassNotFoundException c) {
@@ -117,12 +116,10 @@ public class Backend {
     }
 
     public static void main(String[] args) {
-        byte[][] tickets = createTicketHashes("show", 100);
-        saveTicketArray("tickets.dat",  tickets);
-        byte[][] read_tickets = readTicketFile("tickets.dat");
-        for (byte[] read_ticket : read_tickets) {
-            System.out.println(verifyTicket(read_ticket, tickets));
+        Ticket[] tickets = createTicketHashes("butts", 100);
+        for(int i = 0; i < 10; i++) {
+            System.out.println(Arrays.toString(tickets[i].hash));
+            System.out.println(tickets[i].used);
         }
     }
-
 }
