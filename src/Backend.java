@@ -116,10 +116,6 @@ public class Backend {
     }
 
     public static void main(String[] args) {
-        Ticket[] tickets = createTicketHashes("butts", 100);
-        for(int i = 0; i < 10; i++) {
-            System.out.println(Arrays.toString(tickets[i].hash));
-            System.out.println(tickets[i].used);
-        }
+
     }
 }
