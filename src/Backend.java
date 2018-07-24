@@ -116,6 +116,11 @@ public class Backend {
         return null;
     }
 
+    /**
+     * The server's process. This handles the receiving of requests from clients.
+     * @param port
+     * @throws IOException
+     */
     public void start(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         System.out.println("Waiting for client to connect");
@@ -125,11 +130,11 @@ public class Backend {
 
         boolean done = false;
         while(!done) {
-            System.out.println("Reading length of hash");
-            int length = dataInput.readInt();
-            System.out.println("Length of hash is: " + length);
-            System.out.println("Reading bytes of hash");
+            int length = dataInput.readInt();   // First find out how many bytes we should read
+            
             byte[] hash = new byte[length];
+
+            // There is probably a better way to do this than a for loop. readAllBytes perhaps?
             for(int i = 0; i < length; i++) {
                 hash[i] = dataInput.readByte();
             }

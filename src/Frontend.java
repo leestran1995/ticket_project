@@ -15,13 +15,19 @@ import java.net.Socket;
 public class Frontend {
     private Socket clientSocket;
 
+    /**
+     * Start the client process. At the moment this is just a testing placeholder. In the future, this
+     * will handle the client's functionality. It should read a QR code, decode the hash from that
+     * QR code, and send that hash to the server for validation. It should then display a message
+     * depending on whether the ticket was valid or not.
+     * @param ip
+     * @param port
+     * @throws IOException
+     */
     public void start(String ip, int port) throws IOException {
-        System.out.println("Connecting to server");
         clientSocket = new Socket(ip, port);
-        System.out.println("Connected to server");
         DataOutputStream dataOut = new DataOutputStream(clientSocket.getOutputStream());
         byte[] hash = {10, 3, 4, 5};
-        System.out.println("Hash length is: " + hash.length);
 
         // Send the length of the data first
         dataOut.writeInt(hash.length);
